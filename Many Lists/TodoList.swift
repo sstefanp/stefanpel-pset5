@@ -21,7 +21,9 @@ class TodoList {
     }
     
     func addItem(text: String) {
-        let itemtoAdd = TodoManager.todoitems.insert(TodoManager.todolist <- self.name, TodoManager.todoitem <- text)
+        let itemtoAdd = TodoManager.todoitems.insert(TodoManager.listID    <- self.id,
+                                                     TodoManager.todoitem  <- text,
+                                                     TodoManager.completed <- false)
         
         do {
             try database.run(itemtoAdd)
@@ -33,13 +35,19 @@ class TodoList {
     }
     
     func delete() throws {
-        let items = TodoManager.todolists.where(TodoManager.listID == self.id)
-        try database.run(items.delete())
+        // First delete all items related to this list.
+        for item in self.items {
+            try item.delete()
+        }
+        
+        // Then delete the list itself.
+        let list = TodoManager.todolists.where(TodoManager.listID == self.id)
+        try database.run(list.delete())
     }
     
     var items: [TodoItem] {
         get {
-            guard let results = try? self.database.prepare(TodoManager.todoitems.filter(TodoManager.todolist == self.name)) else { return [] }
+            guard let results = try? self.database.prepare(TodoManager.todoitems.filter(TodoManager.listID == self.id)) else { return [] }
             
             var items: [TodoItem] = []
             

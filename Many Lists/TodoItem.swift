@@ -23,18 +23,16 @@ class TodoItem {
         self.database = database
     }
     
-    func delete() {
-        
-        
-        // TODO
+    func delete() throws {
+        let item = TodoManager.todoitems.where(TodoManager.itemID == self.id)
+        try database.run(item.delete())
         
     }
     
     
-    func complete() {
-        
-        // TODO
-        
+    func toggleCompleted() throws {
+        let item = TodoManager.todoitems.where(TodoManager.itemID == self.id)
+        try database.run(item.update(TodoManager.completed <- !self.completed))
     }
     
 }

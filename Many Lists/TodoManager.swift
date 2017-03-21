@@ -43,6 +43,7 @@ class TodoManager {
         do {
             database = try Connection("\(path)/db.sqlite3")
             createListsTable()
+            createItemsTable()
         } catch let error {
             // Error handling.
         }
@@ -59,10 +60,11 @@ class TodoManager {
         }
     }
     
-    private func createToDoItem() {
+    private func createItemsTable() {
         do {
             try database?.run(TodoManager.todoitems.create(ifNotExists: true) { t in
                 t.column(TodoManager.itemID, primaryKey: .autoincrement)
+                t.column(TodoManager.listID)
                 t.column(TodoManager.todoitem)
                 t.column(TodoManager.completed)
             })
@@ -71,13 +73,6 @@ class TodoManager {
             // Error handling
         }
     }
-    
-//    func getAllLists(listId: Int, listName: String) throws -> TodoList{
-//        do {
-//            for item in try! database?.prepare(listID.filter(self.list) ==  )
-//        }
-//    }
-    
     
     func addList(name: String) {
         
@@ -108,7 +103,6 @@ class TodoManager {
 }
 
 let todoManager = TodoManager()
-//print(todoManager.lists)
 
 
 

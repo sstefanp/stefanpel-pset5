@@ -16,8 +16,8 @@ class DetailViewController: UITableViewController {
     var database: Connection?
     
     @IBOutlet weak var detailDescriptionLabel: UILabel!
-
-
+    
+    
     func configureView() {
         // Update the user interface for the detail item.
         if let detail = self.detailItem {
@@ -26,19 +26,20 @@ class DetailViewController: UITableViewController {
             }
         }
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewItem(_:)))
         self.navigationItem.rightBarButtonItem = addButton
         self.configureView()
+        self.reloadData()
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     var detailItem: NSDate? {
         didSet {
             // Update the view.
@@ -85,14 +86,37 @@ class DetailViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        do {
+            try self.todoItems[indexPath.row].delete()
+            self.todoItems.remove(at: indexPath.row)
+            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+        } catch {
+            // Handle error.
+        }
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        cell.textLabel!.text = self.todoItems[indexPath.row].name
+        
+        // Retrieve item from array.
+        let item = self.todoItems[indexPath.row]
+        
+        // Show name of todo.
+        cell.textLabel!.text = item.name
+        
+        // Show checkmark if this todoitem is completed.
+        if item.completed {
+            cell.accessoryType = .checkmark
+        } else {
+            cell.accessoryType = .none
+        }
         
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        try? self.todoItems[indexPath.row].toggleCompleted()
+        self.reloadData()
+    }
 }
 
